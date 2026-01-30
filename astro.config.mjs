@@ -5,7 +5,7 @@ import cloudflare from '@astrojs/cloudflare';
 
 // https://astro.build/config
 export default defineConfig({
-  site: 'https://woodwork.tdshome.pt',
+  site: 'https://woodwook.jorgedaniel1989.workers.dev',
   output: 'server',
   adapter: cloudflare({
     mode: 'advanced',
