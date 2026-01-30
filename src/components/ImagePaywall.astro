@@ -80,6 +80,12 @@ const price = t.paywall.price;
 </div>
 
 <script>
+  declare global {
+    interface Window {
+      Stripe: any;
+    }
+  }
+
   const STRIPE_PUBLIC_KEY = import.meta.env.PUBLIC_STRIPE_KEY || 'pk_test_placeholder';
   let stripe: any = null;
   
@@ -122,11 +128,11 @@ const price = t.paywall.price;
       });
       
       if (!response.ok) {
-        const error = await response.json();
+        const error = await response.json() as { error?: string };
         throw new Error(error.error || 'Erro ao criar sessão');
       }
       
-      const session = await response.json();
+      const session = await response.json() as { id: string; url?: string };
       
       // Redirecionar para Stripe Checkout
       const result = await stripe.redirectToCheckout({

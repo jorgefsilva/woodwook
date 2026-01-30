@@ -1,9 +1,14 @@
 import type { APIRoute } from 'astro';
 import Stripe from 'stripe';
 
-export const POST: APIRoute = async ({ request, locals }) => {
+export const POST: APIRoute = async ({ request }) => {
   try {
-    const body = await request.json();
+    const body = await request.json() as {
+      blueprintId: string;
+      lang: string;
+      currency: string;
+      amount: number;
+    };
     const { blueprintId, lang, currency, amount } = body;
 
     // Obter chave secreta do Stripe das variáveis de ambiente
@@ -19,7 +24,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
 
     // Inicializar Stripe
     const stripe = new Stripe(stripeSecretKey, {
-      apiVersion: '2024-11-20.acacia',
+      apiVersion: '2023-10-16',
     });
 
     // Obter URL do site

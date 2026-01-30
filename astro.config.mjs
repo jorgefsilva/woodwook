@@ -1,6 +1,5 @@
 import { defineConfig } from 'astro/config';
 import mdx from '@astrojs/mdx';
-import sitemap from '@astrojs/sitemap';
 import tailwind from '@astrojs/tailwind';
 import cloudflare from '@astrojs/cloudflare';
 
@@ -15,18 +14,13 @@ export default defineConfig({
       type: 'pages',
     },
   }),
+  image: {
+    service: {
+      entrypoint: 'astro/assets/services/noop'
+    }
+  },
   integrations: [
     mdx(),
-    sitemap({
-      i18n: {
-        defaultLocale: 'pt',
-        locales: {
-          pt: 'pt-BR',
-          es: 'es-ES',
-          en: 'en-US',
-        },
-      },
-    }),
     tailwind(),
   ],
   i18n: {

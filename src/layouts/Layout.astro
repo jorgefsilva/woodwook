@@ -45,7 +45,7 @@ const hreflangs = alternates.length > 0 ? alternates : languages.map(l => ({
     <meta property="og:locale" content={lang === 'pt' ? 'pt_BR' : lang === 'es' ? 'es_ES' : 'en_US'} />
     
     <!-- Stripe -->
-    <script src="https://js.stripe.com/v3/" defer></script>
+    <script is:inline src="https://js.stripe.com/v3/" defer></script>
   </head>
   <body class="bg-gray-900 text-gray-100 min-h-screen flex flex-col">
     <header class="bg-gray-800 border-b border-gray-700 sticky top-0 z-50">

@@ -1,9 +1,7 @@
 ---
 import Layout from '../../layouts/Layout.astro';
-import { getTranslation } from '../../i18n';
 
 const lang = Astro.params.lang || 'pt';
-const t = getTranslation(lang);
 
 const messages = {
   pt: { title: 'Pagamento Confirmado!', subtitle: 'Seus blueprints foram enviados', description: 'Verifique seu email.', back: 'Voltar ao Blog' },

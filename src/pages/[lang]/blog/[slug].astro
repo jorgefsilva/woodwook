@@ -1,6 +1,5 @@
 ---
 import Layout from '../../../layouts/Layout.astro';
-import { getTranslation } from '../../../i18n';
 
 export async function getStaticPaths() {
   return [
@@ -11,7 +10,6 @@ export async function getStaticPaths() {
 }
 
 const { lang, slug } = Astro.params;
-const t = getTranslation(lang);
 
 let Content;
 let frontmatter;
@@ -35,7 +33,7 @@ const howToSchema = {
 ---
 
 <Layout lang={lang} title={frontmatter.title} description={frontmatter.description}>
-  <script type="application/ld+json" set:html={JSON.stringify(howToSchema)} />
+  <script is:inline type="application/ld+json" set:html={JSON.stringify(howToSchema)} />
   
   <article class="container mx-auto px-4 py-20 max-w-4xl">
     <header class="mb-12">
