@@ -1,4 +1,4 @@
-import { defineConfig } from 'astro/config';
+import { defineConfig, passthroughImageService } from 'astro/config';
 import mdx from '@astrojs/mdx';
 import tailwind from '@astrojs/tailwind';
 import cloudflare from '@astrojs/cloudflare';
@@ -10,6 +10,9 @@ export default defineConfig({
   adapter: cloudflare({
     mode: 'advanced',
   }),
+  image: {
+    service: passthroughImageService(),
+  },
   vite: {
     ssr: {
       external: ['node:buffer', 'node:path', 'node:fs', 'node:os'],
