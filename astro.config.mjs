@@ -5,15 +5,19 @@ import cloudflare from '@astrojs/cloudflare';
 
 // https://astro.build/config
 export default defineConfig({
-  site: 'https://your-site.pages.dev',
-  output: 'server', // SSR mode
+  site: 'https://woodwork.tdshome.pt',
+  output: 'server',
   adapter: cloudflare({
     mode: 'advanced',
   }),
-  image: {
-    service: {
-      entrypoint: 'astro/assets/services/noop'
-    }
+  vite: {
+    ssr: {
+      external: ['node:buffer', 'node:path', 'node:fs', 'node:os'],
+      noExternal: ['sharp'],
+    },
+    optimizeDeps: {
+      exclude: ['sharp'],
+    },
   },
   integrations: [
     mdx(),
