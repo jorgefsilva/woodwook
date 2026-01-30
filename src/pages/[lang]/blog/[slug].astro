@@ -1,6 +1,6 @@
 ---
-import Layout from '../../../../layouts/Layout.astro';
-import { getTranslation } from '../../../../i18n';
+import Layout from '../../../layouts/Layout.astro';
+import { getTranslation } from '../../../i18n';
 
 export async function getStaticPaths() {
   return [
@@ -17,7 +17,7 @@ let Content;
 let frontmatter;
 
 try {
-  const module = await import(`../../../../content/${lang}/${slug}.mdx`);
+  const module = await import(`../../../content/${lang}/${slug}.mdx`);
   Content = module.default;
   frontmatter = module.frontmatter;
 } catch (error) {
