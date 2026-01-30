@@ -1,0 +1,76 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { getTranslation, getPath } from '../../i18n';
+
+const lang = Astro.params.lang || 'pt';
+const t = getTranslation(lang);
+
+const postsByLang = {
+  pt: [{ slug: 'horta-madeira-1-dia', title: 'Horta Vertical de Madeira em 1 Dia', description: 'Aprenda a construir uma horta vertical sustentável', date: '2026-01-15' }],
+  es: [{ slug: 'huerto-madera-1-dia', title: 'Huerto Vertical de Madera en 1 Día', description: 'Aprende a construir un huerto vertical sostenible', date: '2026-01-15' }],
+  en: [{ slug: 'wooden-garden-1-day', title: 'Wooden Vertical Garden in 1 Day', description: 'Learn to build a sustainable vertical garden', date: '2026-01-15' }]
+};
+
+const posts = postsByLang[lang as keyof typeof postsByLang] || postsByLang.pt;
+---
+
+<Layout lang={lang}>
+  <section class="relative bg-gradient-to-br from-gray-900 via-gray-800 to-wood-900 py-20">
+    <div class="container mx-auto px-4">
+      <div class="max-w-4xl mx-auto text-center">
+        <h1 class="text-5xl md:text-7xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-wood-300 to-wood-500">
+          {t.home.hero}
+        </h1>
+        <p class="text-xl md:text-2xl text-gray-300 mb-8">{t.home.subtitle}</p>
+        <a href={getPath(lang, '/blog')} class="inline-flex items-center gap-2 bg-gradient-to-r from-wood-600 to-wood-500 hover:from-wood-500 hover:to-wood-400 text-white font-bold py-4 px-8 rounded-full transition transform hover:scale-105 shadow-2xl">
+          🔨 {t.home.cta}
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-20 bg-gray-800">
+    <div class="container mx-auto px-4">
+      <div class="grid md:grid-cols-3 gap-8">
+        <div class="bg-gray-900 p-8 rounded-xl border border-gray-700 hover:border-wood-500 transition">
+          <div class="text-4xl mb-4">🌱</div>
+          <h3 class="text-2xl font-bold mb-3 text-wood-400">{lang === 'pt' ? 'Sustentável' : lang === 'es' ? 'Sostenible' : 'Sustainable'}</h3>
+          <p class="text-gray-400">{lang === 'pt' ? 'Projetos ecológicos' : lang === 'es' ? 'Proyectos ecológicos' : 'Eco-friendly projects'}</p>
+        </div>
+        <div class="bg-gray-900 p-8 rounded-xl border border-gray-700 hover:border-wood-500 transition">
+          <div class="text-4xl mb-4">📐</div>
+          <h3 class="text-2xl font-bold mb-3 text-wood-400">Blueprints Pro</h3>
+          <p class="text-gray-400">{lang === 'pt' ? 'Diagramas técnicos detalhados' : lang === 'es' ? 'Diagramas técnicos detallados' : 'Detailed technical diagrams'}</p>
+        </div>
+        <div class="bg-gray-900 p-8 rounded-xl border border-gray-700 hover:border-wood-500 transition">
+          <div class="text-4xl mb-4">⚡</div>
+          <h3 class="text-2xl font-bold mb-3 text-wood-400">{lang === 'pt' ? 'Fácil & Rápido' : lang === 'es' ? 'Fácil y Rápido' : 'Easy & Quick'}</h3>
+          <p class="text-gray-400">{lang === 'pt' ? 'Tutoriais simples' : lang === 'es' ? 'Tutoriales simples' : 'Simple tutorials'}</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-20">
+    <div class="container mx-auto px-4">
+      <h2 class="text-4xl font-bold mb-12 text-center text-wood-400">{lang === 'pt' ? 'Projetos Recentes' : lang === 'es' ? 'Proyectos Recientes' : 'Recent Projects'}</h2>
+      <div class="grid md:grid-cols-3 gap-8">
+        {posts.map(post => (
+          <article class="bg-gray-800 rounded-xl overflow-hidden border border-gray-700 hover:border-wood-500 transition transform hover:scale-105">
+            <div class="aspect-video bg-gradient-to-br from-wood-600 to-wood-800 flex items-center justify-center">
+              <span class="text-6xl">🌿</span>
+            </div>
+            <div class="p-6">
+              <time class="text-sm text-gray-400">{post.date}</time>
+              <h3 class="text-xl font-bold mt-2 mb-3 text-wood-300">{post.title}</h3>
+              <p class="text-gray-400 mb-4">{post.description}</p>
+              <a href={getPath(lang, `/blog/${post.slug}`)} class="inline-flex items-center gap-2 text-wood-400 hover:text-wood-300 font-semibold transition">
+                {t.blog.readMore} →
+              </a>
+            </div>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+</Layout>

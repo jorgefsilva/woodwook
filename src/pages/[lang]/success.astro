@@ -1,0 +1,33 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import { getTranslation } from '../../../i18n';
+
+const lang = Astro.params.lang || 'pt';
+const t = getTranslation(lang);
+
+const messages = {
+  pt: { title: 'Pagamento Confirmado!', subtitle: 'Seus blueprints foram enviados', description: 'Verifique seu email.', back: 'Voltar ao Blog' },
+  es: { title: '¡Pago Confirmado!', subtitle: 'Tus blueprints fueron enviados', description: 'Verifica tu email.', back: 'Volver al Blog' },
+  en: { title: 'Payment Confirmed!', subtitle: 'Your blueprints have been sent', description: 'Check your email.', back: 'Back to Blog' }
+};
+
+const content = messages[lang as keyof typeof messages] || messages.pt;
+---
+
+<Layout lang={lang} title={content.title}>
+  <div class="container mx-auto px-4 py-20">
+    <div class="max-w-2xl mx-auto text-center">
+      <div class="inline-flex items-center justify-center w-24 h-24 bg-green-500 rounded-full mb-6">
+        <svg class="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+        </svg>
+      </div>
+      <h1 class="text-5xl font-bold mb-4 text-wood-400">{content.title}</h1>
+      <p class="text-2xl text-gray-300 mb-8">{content.subtitle}</p>
+      <p class="text-gray-400 mb-12">{content.description}</p>
+      <a href={`/${lang}/blog`} class="inline-flex items-center gap-2 bg-wood-600 hover:bg-wood-500 text-white font-bold py-4 px-8 rounded-lg transition">
+        {content.back}
+      </a>
+    </div>
+  </div>
+</Layout>

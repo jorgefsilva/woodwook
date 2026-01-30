@@ -1,0 +1,46 @@
+---
+interface Props {
+  items: {
+    name: string;
+    quantity: string;
+    link: string;
+  }[];
+  lang: string;
+}
+
+const { items, lang } = Astro.props;
+const t = await import(`../i18n/${lang}.json`).then(m => m.default);
+---
+
+<div class="bg-gray-800 rounded-lg p-6 my-8">
+  <h3 class="text-2xl font-bold mb-4 text-wood-400">{t.blog.materials}</h3>
+  <div class="overflow-x-auto">
+    <table class="w-full">
+      <thead>
+        <tr class="border-b border-gray-700">
+          <th class="text-left py-2 px-4">Material</th>
+          <th class="text-left py-2 px-4">Quantidade</th>
+          <th class="text-right py-2 px-4">Link</th>
+        </tr>
+      </thead>
+      <tbody>
+        {items.map(item => (
+          <tr class="border-b border-gray-700 hover:bg-gray-700 transition">
+            <td class="py-3 px-4">{item.name}</td>
+            <td class="py-3 px-4 text-gray-400">{item.quantity}</td>
+            <td class="py-3 px-4 text-right">
+              <a 
+                href={item.link}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="inline-flex items-center gap-2 bg-wood-600 hover:bg-wood-500 text-white px-4 py-2 rounded-lg transition"
+              >
+                🛒 {t.blog.buyOnAmazon}
+              </a>
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+</div>

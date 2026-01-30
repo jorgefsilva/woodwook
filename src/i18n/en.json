@@ -1,0 +1,40 @@
+{
+  "site": {
+    "title": "DIY Wood & Garden",
+    "description": "Creative do-it-yourself woodworking and gardening projects"
+  },
+  "nav": {
+    "home": "Home",
+    "blog": "Blog",
+    "about": "About"
+  },
+  "home": {
+    "hero": "Transform Wood into Art",
+    "subtitle": "Step-by-step guides for woodworking and vertical garden projects",
+    "cta": "View Projects"
+  },
+  "blog": {
+    "title": "All Projects",
+    "readMore": "Read More",
+    "materials": "Materials Needed",
+    "buyOnAmazon": "Buy on Amazon",
+    "steps": "Step by Step"
+  },
+  "paywall": {
+    "title": "Professional Blueprints",
+    "description": "Get access to high-resolution technical diagrams",
+    "features": {
+      "diagrams": "Detailed exploded diagrams",
+      "measurements": "All measurements and cuts",
+      "materials": "Complete materials list",
+      "instructions": "Step-by-step instructions"
+    },
+    "price": "$5",
+    "button": "Buy Blueprints",
+    "secure": "Secure payment via Stripe"
+  },
+  "footer": {
+    "rights": "All rights reserved",
+    "contact": "Contact"
+  }
+}

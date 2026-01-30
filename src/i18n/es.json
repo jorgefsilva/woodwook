@@ -1,0 +1,40 @@
+{
+  "site": {
+    "title": "DIY Madera & Huerto",
+    "description": "Proyectos creativos de carpintería y jardinería hágalo usted mismo"
+  },
+  "nav": {
+    "home": "Inicio",
+    "blog": "Blog",
+    "about": "Acerca"
+  },
+  "home": {
+    "hero": "Transforma Madera en Arte",
+    "subtitle": "Guías paso a paso para proyectos de carpintería y huertos verticales",
+    "cta": "Ver Proyectos"
+  },
+  "blog": {
+    "title": "Todos los Proyectos",
+    "readMore": "Leer Más",
+    "materials": "Materiales Necesarios",
+    "buyOnAmazon": "Comprar en Amazon",
+    "steps": "Paso a Paso"
+  },
+  "paywall": {
+    "title": "Blueprints Profesionales",
+    "description": "Obtén acceso a los diagramas técnicos en alta resolución",
+    "features": {
+      "diagrams": "Diagramas explosionados detallados",
+      "measurements": "Todas las medidas y cortes",
+      "materials": "Lista completa de materiales",
+      "instructions": "Instrucciones paso a paso"
+    },
+    "price": "$5",
+    "button": "Comprar Blueprints",
+    "secure": "Pago seguro vía Stripe"
+  },
+  "footer": {
+    "rights": "Todos los derechos reservados",
+    "contact": "Contacto"
+  }
+}

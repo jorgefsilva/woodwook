@@ -1,0 +1,171 @@
+---
+interface Props {
+  lang: string;
+  blueprintId: string;
+  previewImage?: string;
+}
+
+const { lang, blueprintId, previewImage = '/blueprints/horta-preview.jpg' } = Astro.props;
+const t = await import(`../i18n/${lang}.json`).then(m => m.default);
+const currency = lang === 'pt' ? 'eur' : 'usd';
+const price = t.paywall.price;
+---
+
+<div class="bg-gradient-to-br from-gray-800 to-gray-900 rounded-xl p-8 my-12 border border-gray-700">
+  <div class="grid md:grid-cols-2 gap-8 items-center">
+    <!-- Preview Image -->
+    <div class="relative">
+      <div class="relative rounded-lg overflow-hidden">
+        <img 
+          src={previewImage} 
+          alt="Blueprint Preview" 
+          class="w-full h-auto blur-sm"
+        />
+        <div class="absolute inset-0 bg-gray-900/50 backdrop-blur-sm flex items-center justify-center">
+          <div class="text-center">
+            <svg class="w-20 h-20 text-wood-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+            </svg>
+            <p class="text-xl font-bold text-white">Conteúdo Protegido</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Paywall Content -->
+    <div>
+      <h2 class="text-3xl font-bold mb-4 text-wood-400">{t.paywall.title}</h2>
+      <p class="text-gray-300 mb-6">{t.paywall.description}</p>
+      
+      <ul class="space-y-3 mb-8">
+        <li class="flex items-start gap-3">
+          <span class="text-green-400 text-xl mt-1">✓</span>
+          <span>{t.paywall.features.diagrams}</span>
+        </li>
+        <li class="flex items-start gap-3">
+          <span class="text-green-400 text-xl mt-1">✓</span>
+          <span>{t.paywall.features.measurements}</span>
+        </li>
+        <li class="flex items-start gap-3">
+          <span class="text-green-400 text-xl mt-1">✓</span>
+          <span>{t.paywall.features.materials}</span>
+        </li>
+        <li class="flex items-start gap-3">
+          <span class="text-green-400 text-xl mt-1">✓</span>
+          <span>{t.paywall.features.instructions}</span>
+        </li>
+      </ul>
+
+      <div class="bg-gray-800 rounded-lg p-6 mb-6">
+        <div class="flex items-center justify-between mb-4">
+          <span class="text-gray-400">Blueprints em Alta Resolução</span>
+          <span class="text-3xl font-bold text-wood-400">{price}</span>
+        </div>
+        <button 
+          id="checkout-button"
+          data-blueprint-id={blueprintId}
+          data-lang={lang}
+          data-currency={currency}
+          data-amount={currency === 'eur' ? '500' : '500'}
+          class="w-full bg-gradient-to-r from-wood-600 to-wood-500 hover:from-wood-500 hover:to-wood-400 text-white font-bold py-4 px-6 rounded-lg transition transform hover:scale-105 shadow-lg"
+        >
+          🔓 {t.paywall.button}
+        </button>
+        <p class="text-sm text-gray-400 text-center mt-3">{t.paywall.secure}</p>
+      </div>
+
+      <div id="status-message" class="hidden"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const STRIPE_PUBLIC_KEY = import.meta.env.PUBLIC_STRIPE_KEY || 'pk_test_placeholder';
+  let stripe: any = null;
+  
+  function initStripe() {
+    if (window.Stripe && !stripe) {
+      stripe = window.Stripe(STRIPE_PUBLIC_KEY);
+    }
+  }
+  
+  initStripe();
+  setTimeout(initStripe, 1000);
+  
+  document.getElementById('checkout-button')?.addEventListener('click', async function(e) {
+    const button = e.target as HTMLButtonElement;
+    const blueprintId = button.getAttribute('data-blueprint-id');
+    const lang = button.getAttribute('data-lang');
+    const currency = button.getAttribute('data-currency');
+    const amount = parseInt(button.getAttribute('data-amount') || '500');
+    
+    if (!stripe) {
+      showStatus('Erro: Stripe não carregado. Recarregue a página.', 'error');
+      return;
+    }
+    
+    button.disabled = true;
+    const originalText = button.textContent;
+    button.textContent = 'Processando...';
+    
+    try {
+      // Chamar API SSR do Astro
+      const response = await fetch('/api/create-checkout-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          blueprintId,
+          lang,
+          currency,
+          amount,
+        })
+      });
+      
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Erro ao criar sessão');
+      }
+      
+      const session = await response.json();
+      
+      // Redirecionar para Stripe Checkout
+      const result = await stripe.redirectToCheckout({
+        sessionId: session.id
+      });
+      
+      if (result.error) {
+        showStatus(result.error.message, 'error');
+      }
+    } catch (error: any) {
+      console.error('Erro:', error);
+      showStatus(error.message || 'Erro ao processar pagamento', 'error');
+    } finally {
+      button.disabled = false;
+      button.textContent = originalText || '';
+    }
+  });
+  
+  function showStatus(message: string, type: 'success' | 'error' | 'info') {
+    const statusEl = document.getElementById('status-message');
+    if (!statusEl) return;
+    
+    statusEl.className = `mt-4 p-4 rounded-lg ${
+      type === 'success' ? 'bg-green-900 text-green-200' :
+      type === 'error' ? 'bg-red-900 text-red-200' :
+      'bg-blue-900 text-blue-200'
+    }`;
+    statusEl.textContent = message;
+    statusEl.classList.remove('hidden');
+    
+    if (type !== 'error') {
+      setTimeout(() => statusEl.classList.add('hidden'), 5000);
+    }
+  }
+</script>
+
+<style>
+  button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+</style>

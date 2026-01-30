@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600">
+  <rect fill="#1e293b" width="800" height="600"/>
+  <text x="400" y="300" text-anchor="middle" fill="#94a3b8" font-size="48" font-weight="bold">
+    BLUEPRINT PREVIEW
+  </text>
+  <text x="400" y="350" text-anchor="middle" fill="#64748b" font-size="24">
+    Locked - Purchase to Access
+  </text>
+</svg>

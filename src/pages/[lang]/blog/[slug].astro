@@ -1,0 +1,80 @@
+---
+import Layout from '../../../../layouts/Layout.astro';
+import { getTranslation } from '../../../../i18n';
+
+export async function getStaticPaths() {
+  return [
+    { params: { lang: 'pt', slug: 'horta-madeira-1-dia' } },
+    { params: { lang: 'es', slug: 'huerto-madera-1-dia' } },
+    { params: { lang: 'en', slug: 'wooden-garden-1-day' } },
+  ];
+}
+
+const { lang, slug } = Astro.params;
+const t = getTranslation(lang);
+
+let Content;
+let frontmatter;
+
+try {
+  const module = await import(`../../../../content/${lang}/${slug}.mdx`);
+  Content = module.default;
+  frontmatter = module.frontmatter;
+} catch (error) {
+  return Astro.redirect(`/${lang}/blog`);
+}
+
+const howToSchema = {
+  "@context": "https://schema.org",
+  "@type": "HowTo",
+  "name": frontmatter.title,
+  "description": frontmatter.description,
+  "totalTime": "PT2H",
+  "estimatedCost": { "@type": "MonetaryAmount", "currency": lang === 'pt' ? 'EUR' : 'USD', "value": "70" }
+};
+---
+
+<Layout lang={lang} title={frontmatter.title} description={frontmatter.description}>
+  <script type="application/ld+json" set:html={JSON.stringify(howToSchema)} />
+  
+  <article class="container mx-auto px-4 py-20 max-w-4xl">
+    <header class="mb-12">
+      <div class="flex gap-2 mb-4">
+        {frontmatter.tags?.map((tag: string) => (
+          <span class="text-xs bg-wood-700 text-wood-100 px-3 py-1 rounded-full">#{tag}</span>
+        ))}
+      </div>
+      <h1 class="text-5xl font-bold mb-4 text-wood-300">{frontmatter.title}</h1>
+      <div class="flex items-center gap-4 text-gray-400">
+        <time>{frontmatter.pubDate}</time>
+        <span>•</span>
+        <span>{frontmatter.author}</span>
+      </div>
+    </header>
+
+    <div class="prose prose-invert prose-wood max-w-none">
+      <Content />
+    </div>
+
+    <footer class="mt-16 pt-8 border-t border-gray-700">
+      <a href={`/${lang}/blog`} class="inline-flex items-center gap-2 text-wood-400 hover:text-wood-300 font-semibold">
+        ← {lang === 'pt' ? 'Voltar' : lang === 'es' ? 'Volver' : 'Back'}
+      </a>
+    </footer>
+  </article>
+</Layout>
+
+<style is:global>
+  .prose-wood {
+    --tw-prose-body: theme('colors.gray.300');
+    --tw-prose-headings: theme('colors.wood.300');
+    --tw-prose-links: theme('colors.wood.400');
+  }
+  .prose table { @apply w-full border-collapse; }
+  .prose th, .prose td { @apply px-4 py-3 border border-gray-700; }
+  .prose th { @apply bg-gray-800 font-bold; }
+  .prose h2 { @apply text-3xl font-bold mt-12 mb-6; }
+  .prose h3 { @apply text-2xl font-bold mt-8 mb-4; }
+  .prose p { @apply mb-6 leading-relaxed; }
+  .prose ul, .prose ol { @apply my-6 space-y-2; }
+</style>

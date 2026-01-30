@@ -1,0 +1,40 @@
+{
+  "site": {
+    "title": "DIY Madeira & Horta",
+    "description": "Projetos criativos de marcenaria e jardinagem faça-você-mesmo"
+  },
+  "nav": {
+    "home": "Início",
+    "blog": "Blog",
+    "about": "Sobre"
+  },
+  "home": {
+    "hero": "Transforme Madeira em Arte",
+    "subtitle": "Guias passo a passo para projetos de marcenaria e hortas verticais",
+    "cta": "Ver Projetos"
+  },
+  "blog": {
+    "title": "Todos os Projetos",
+    "readMore": "Ler Mais",
+    "materials": "Materiais Necessários",
+    "buyOnAmazon": "Comprar na Amazon",
+    "steps": "Passo a Passo"
+  },
+  "paywall": {
+    "title": "Blueprints Profissionais",
+    "description": "Obtenha acesso aos diagramas técnicos em alta resolução",
+    "features": {
+      "diagrams": "Diagramas explodidos detalhados",
+      "measurements": "Todas as medidas e cortes",
+      "materials": "Lista completa de materiais",
+      "instructions": "Instruções passo a passo"
+    },
+    "price": "€5",
+    "button": "Comprar Blueprints",
+    "secure": "Pagamento seguro via Stripe"
+  },
+  "footer": {
+    "rights": "Todos os direitos reservados",
+    "contact": "Contato"
+  }
+}
