@@ -8,11 +8,7 @@ export default defineConfig({
   site: 'https://your-site.pages.dev',
   output: 'server', // SSR mode
   adapter: cloudflare({
-    mode: 'directory',
-    runtime: {
-      mode: 'local',
-      type: 'pages',
-    },
+    mode: 'advanced',
   }),
   image: {
     service: {
