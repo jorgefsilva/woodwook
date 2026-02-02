@@ -2,11 +2,63 @@
 import Layout from '../../layouts/Layout.astro';
 
 const lang = Astro.params.lang || 'pt';
+const sessionId = Astro.url.searchParams.get('session_id');
 
 const messages = {
-  pt: { title: 'Pagamento Confirmado!', subtitle: 'Seus blueprints foram enviados', description: 'Verifique seu email.', back: 'Voltar ao Blog' },
-  es: { title: '¡Pago Confirmado!', subtitle: 'Tus blueprints fueron enviados', description: 'Verifica tu email.', back: 'Volver al Blog' },
-  en: { title: 'Payment Confirmed!', subtitle: 'Your blueprints have been sent', description: 'Check your email.', back: 'Back to Blog' }
+  pt: { 
+    title: 'Pagamento Confirmado!', 
+    subtitle: 'Sua imagem blueprint foi liberada', 
+    description: 'Baixe agora ou receba por email.',
+    downloading: 'Preparando download...',
+    downloadButton: 'Baixar Blueprint Alta Qualidade (PNG)',
+    viewButton: 'Preview de Baixa Qualidade',
+    back: 'Voltar ao Blog',
+    error: 'Erro ao verificar pagamento',
+    loading: 'Verificando pagamento...',
+    expired: 'Link expirado',
+    expiredDesc: 'Este link de download expirou. Entre em contato com o suporte.',
+    notPaid: 'Pagamento pendente',
+    notPaidDesc: 'Seu pagamento ainda está sendo processado. Por favor, aguarde.',
+    emailSent: 'Email enviado para',
+    downloadInfo: 'Link válido por 24 horas',
+    previewNote: 'Preview com qualidade reduzida',
+  },
+  es: { 
+    title: '¡Pago Confirmado!', 
+    subtitle: 'Tu imagen blueprint ha sido liberada', 
+    description: 'Descarga ahora o recibe por email.',
+    downloading: 'Preparando descarga...',
+    downloadButton: 'Descargar Blueprint Alta Calidad (PNG)',
+    viewButton: 'Preview de Baja Calidad',
+    back: 'Volver al Blog',
+    error: 'Error al verificar pago',
+    loading: 'Verificando pago...',
+    expired: 'Enlace expirado',
+    expiredDesc: 'Este enlace de descarga ha expirado. Contacta soporte.',
+    notPaid: 'Pago pendiente',
+    notPaidDesc: 'Tu pago aún se está procesando. Por favor, espera.',
+    emailSent: 'Email enviado a',
+    downloadInfo: 'Enlace válido por 24 horas',
+    previewNote: 'Preview con calidad reducida',
+  },
+  en: { 
+    title: 'Payment Confirmed!', 
+    subtitle: 'Your blueprint image has been unlocked', 
+    description: 'Download now or receive by email.',
+    downloading: 'Preparing download...',
+    downloadButton: 'Download High Quality Blueprint (PNG)',
+    viewButton: 'Low Quality Preview',
+    back: 'Back to Blog',
+    error: 'Error verifying payment',
+    loading: 'Verifying payment...',
+    expired: 'Link expired',
+    expiredDesc: 'This download link has expired. Please contact support.',
+    notPaid: 'Payment pending',
+    notPaidDesc: 'Your payment is still being processed. Please wait.',
+    emailSent: 'Email sent to',
+    downloadInfo: 'Link valid for 24 hours',
+    previewNote: 'Preview with reduced quality',
+  }
 };
 
 const content = messages[lang as keyof typeof messages] || messages.pt;
@@ -14,18 +66,264 @@ const content = messages[lang as keyof typeof messages] || messages.pt;
 
 <Layout lang={lang} title={content.title}>
   <div class="container mx-auto px-4 py-20">
-    <div class="max-w-2xl mx-auto text-center">
-      <div class="inline-flex items-center justify-center w-24 h-24 bg-green-500 rounded-full mb-6">
-        <svg class="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-        </svg>
+    <div class="max-w-3xl mx-auto">
+      <!-- Success State -->
+      <div id="success-state" class="text-center">
+        <div class="inline-flex items-center justify-center w-24 h-24 bg-green-500 rounded-full mb-6 animate-bounce-once">
+          <svg class="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+          </svg>
+        </div>
+        <h1 class="text-5xl font-bold mb-4 text-wood-400">{content.title}</h1>
+        <p class="text-2xl text-gray-300 mb-4">{content.subtitle}</p>
+        <p class="text-gray-400 mb-12">{content.description}</p>
+        
+        <!-- Loading State -->
+        <div id="loading-state" class="mb-8">
+          <div class="inline-flex items-center gap-3 text-wood-400">
+            <svg class="animate-spin h-8 w-8" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <span class="text-lg">{content.loading}</span>
+          </div>
+        </div>
+
+        <!-- Download Section (hidden initially) -->
+        <div id="download-section" class="hidden">
+          <!-- Payment Info Card -->
+          <div class="bg-gray-800 rounded-xl p-6 mb-8 border border-gray-700">
+            <div class="grid md:grid-cols-2 gap-4 text-left">
+              <div>
+                <p class="text-gray-400 text-sm mb-1">Blueprint ID</p>
+                <p class="text-white font-mono text-sm" id="blueprint-id"></p>
+              </div>
+              <div>
+                <p class="text-gray-400 text-sm mb-1">{content.emailSent}</p>
+                <p class="text-white text-sm" id="customer-email"></p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Download Buttons -->
+          <div class="flex flex-col sm:flex-row gap-4 justify-center mb-6">
+            <button 
+              id="download-button"
+              class="inline-flex items-center justify-center gap-3 bg-gradient-to-r from-wood-600 to-wood-500 hover:from-wood-500 hover:to-wood-400 text-white font-bold py-4 px-8 rounded-lg transition transform hover:scale-105 shadow-lg"
+            >
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"></path>
+              </svg>
+              <span>{content.downloadButton}</span>
+            </button>
+
+            <button 
+              id="view-button"
+              class="inline-flex items-center justify-center gap-3 bg-gray-700 hover:bg-gray-600 text-white font-bold py-4 px-8 rounded-lg transition"
+            >
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+              </svg>
+              <span>{content.viewButton}</span>
+            </button>
+          </div>
+
+          <p class="text-sm text-gray-400 mb-4">
+            <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            {content.downloadInfo}
+          </p>
+        </div>
+
+        <!-- Error States -->
+        <div id="error-state" class="hidden mb-8">
+          <div class="bg-red-900/50 border border-red-700 rounded-lg p-6">
+            <svg class="w-12 h-12 text-red-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <h3 class="text-xl font-bold text-red-200 mb-2" id="error-title">{content.error}</h3>
+            <p class="text-red-200" id="error-message"></p>
+          </div>
+        </div>
+
+        <!-- Preview Modal with Low Quality -->
+        <div id="preview-modal" class="hidden fixed inset-0 bg-black bg-opacity-95 z-50 flex items-center justify-center p-4">
+          <div class="relative max-w-6xl w-full">
+            <button id="close-preview" class="absolute -top-2 -right-2 bg-gray-800 hover:bg-gray-700 text-white rounded-full p-2 z-10 transition">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+              </svg>
+            </button>
+            
+            <!-- Preview Note -->
+            <div class="absolute top-4 left-1/2 transform -translate-x-1/2 bg-yellow-900/90 text-yellow-200 px-4 py-2 rounded-lg text-sm z-10">
+              <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+              {content.previewNote}
+            </div>
+            
+            <!-- Low Quality Preview Image -->
+            <div class="relative">
+              <img 
+                id="preview-image" 
+                src="" 
+                alt="Blueprint Preview" 
+                class="w-full h-auto rounded-lg shadow-2xl"
+                style="filter: blur(3px) brightness(0.8); image-rendering: pixelated;"
+              />
+              <div class="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/30 rounded-lg pointer-events-none"></div>
+            </div>
+            
+            <!-- Download Button in Modal -->
+            <div class="mt-6 text-center">
+              <button 
+                id="download-from-modal"
+                class="inline-flex items-center gap-2 bg-wood-600 hover:bg-wood-500 text-white font-bold py-3 px-6 rounded-lg transition"
+              >
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                </svg>
+                {content.downloadButton}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Back Button -->
+        <div class="mt-12">
+          <a href={`/${lang}/blog`} class="inline-flex items-center gap-2 text-wood-400 hover:text-wood-300 font-semibold transition">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+            </svg>
+            {content.back}
+          </a>
+        </div>
       </div>
-      <h1 class="text-5xl font-bold mb-4 text-wood-400">{content.title}</h1>
-      <p class="text-2xl text-gray-300 mb-8">{content.subtitle}</p>
-      <p class="text-gray-400 mb-12">{content.description}</p>
-      <a href={`/${lang}/blog`} class="inline-flex items-center gap-2 bg-wood-600 hover:bg-wood-500 text-white font-bold py-4 px-8 rounded-lg transition">
-        {content.back}
-      </a>
     </div>
   </div>
 </Layout>
+
+<script define:vars={{ sessionId, lang, content }}>
+  let downloadUrl = '';
+  let blueprintId = '';
+
+  async function verifyPaymentAndGetDownload() {
+    if (!sessionId) {
+      showError(content.error, 'No session ID provided in URL. Please check the link.');
+      return;
+    }
+
+    try {
+      console.log('🔍 Verificando pagamento...');
+      const response = await fetch(`/api/verify-payment?session_id=${sessionId}`);
+      const data = await response.json();
+
+      if (!response.ok) {
+        console.error('❌ Erro na verificação:', data);
+        
+        if (data.payment_status === 'unpaid') {
+          showError(content.notPaid, content.notPaidDesc);
+        } else {
+          showError(content.error, data.message || 'Failed to verify payment');
+        }
+        return;
+      }
+
+      console.log('✅ Pagamento verificado:', data);
+
+      // Sucesso! Configurar interface
+      downloadUrl = data.downloadUrl;
+      blueprintId = data.blueprintId;
+      
+      document.getElementById('blueprint-id').textContent = blueprintId;
+      document.getElementById('customer-email').textContent = data.email || 'N/A';
+      
+      document.getElementById('loading-state')?.classList.add('hidden');
+      document.getElementById('download-section')?.classList.remove('hidden');
+
+    } catch (error) {
+      console.error('❌ Erro de conexão:', error);
+      showError(content.error, 'Failed to connect to server. Please check your connection.');
+    }
+  }
+
+  function showError(title, message) {
+    document.getElementById('loading-state')?.classList.add('hidden');
+    document.getElementById('error-state')?.classList.remove('hidden');
+    document.getElementById('error-title').textContent = title;
+    document.getElementById('error-message').textContent = message;
+  }
+
+  // Event Listeners
+  document.getElementById('download-button')?.addEventListener('click', () => {
+    if (downloadUrl) {
+      console.log('📥 Iniciando download de alta qualidade...');
+      window.location.href = downloadUrl;
+    }
+  });
+
+  document.getElementById('view-button')?.addEventListener('click', () => {
+    if (downloadUrl) {
+      console.log('👁️ Abrindo preview de baixa qualidade...');
+      const modal = document.getElementById('preview-modal');
+      const img = document.getElementById('preview-image');
+      img.src = downloadUrl;
+      modal?.classList.remove('hidden');
+    }
+  });
+
+  document.getElementById('download-from-modal')?.addEventListener('click', () => {
+    if (downloadUrl) {
+      console.log('📥 Iniciando download de alta qualidade do modal...');
+      window.location.href = downloadUrl;
+      document.getElementById('preview-modal')?.classList.add('hidden');
+    }
+  });
+
+  document.getElementById('close-preview')?.addEventListener('click', () => {
+    document.getElementById('preview-modal')?.classList.add('hidden');
+  });
+
+  // Fechar modal com ESC
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      document.getElementById('preview-modal')?.classList.add('hidden');
+    }
+  });
+
+  // Iniciar verificação
+  if (sessionId) {
+    verifyPaymentAndGetDownload();
+  } else {
+    showError(content.error, 'No session ID provided in URL');
+  }
+</script>
+
+<style>
+  @keyframes bounce-once {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-20px); }
+  }
+  
+  .animate-bounce-once {
+    animation: bounce-once 0.6s ease-in-out;
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+  
+  .animate-spin {
+    animation: spin 1s linear infinite;
+  }
+  
+  /* Força baixa qualidade no preview */
+  #preview-image {
+    image-rendering: pixelated;
+    image-rendering: -moz-crisp-edges;
+    image-rendering: crisp-edges;
+  }
+</style>

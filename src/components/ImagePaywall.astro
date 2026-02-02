@@ -13,13 +13,14 @@ const price = t.paywall.price;
 
 <div class="bg-gradient-to-br from-gray-800 to-gray-900 rounded-xl p-8 my-12 border border-gray-700">
   <div class="grid md:grid-cols-2 gap-8 items-center">
-    <!-- Preview Image -->
+    <!-- Preview Image with Low Quality -->
     <div class="relative">
       <div class="relative rounded-lg overflow-hidden">
         <img 
           src={previewImage} 
           alt="Blueprint Preview" 
-          class="w-full h-auto blur-sm"
+          class="w-full h-auto blur-[2px] opacity-60"
+          style="filter: blur(2px) brightness(0.7);"
         />
         <div class="absolute inset-0 bg-gray-900/50 backdrop-blur-sm flex items-center justify-center">
           <div class="text-center">
@@ -67,14 +68,14 @@ const price = t.paywall.price;
           data-lang={lang}
           data-currency={currency}
           data-amount={currency === 'eur' ? '500' : '500'}
-          class="w-full bg-gradient-to-r from-wood-600 to-wood-500 hover:from-wood-500 hover:to-wood-400 text-white font-bold py-4 px-6 rounded-lg transition transform hover:scale-105 shadow-lg"
+          class="w-full bg-gradient-to-r from-wood-600 to-wood-500 hover:from-wood-500 hover:to-wood-400 text-white font-bold py-4 px-6 rounded-lg transition transform hover:scale-105 shadow-lg disabled:opacity-60 disabled:cursor-not-allowed"
         >
           🔓 {t.paywall.button}
         </button>
         <p class="text-sm text-gray-400 text-center mt-3">{t.paywall.secure}</p>
       </div>
 
-      <div id="status-message" class="hidden"></div>
+      <div id="status-message" class="hidden rounded-lg p-4 mt-4"></div>
     </div>
   </div>
 </div>
@@ -86,76 +87,113 @@ const price = t.paywall.price;
     }
   }
 
+  console.log('🔧 ImagePaywall script carregado');
+
   const STRIPE_PUBLIC_KEY = import.meta.env.PUBLIC_STRIPE_KEY || 'pk_test_placeholder';
+  console.log('🔑 Stripe Public Key:', STRIPE_PUBLIC_KEY.substring(0, 20) + '...');
+  
   let stripe: any = null;
   
   function initStripe() {
     if (window.Stripe && !stripe) {
       stripe = window.Stripe(STRIPE_PUBLIC_KEY);
+      console.log('✅ Stripe inicializado');
+    } else if (!window.Stripe) {
+      console.log('⏳ Aguardando Stripe carregar...');
     }
   }
   
+  // Tentar inicializar imediatamente
   initStripe();
+  
+  // Tentar novamente após 1 segundo
   setTimeout(initStripe, 1000);
   
-  document.getElementById('checkout-button')?.addEventListener('click', async function(e) {
-    const button = e.target as HTMLButtonElement;
-    const blueprintId = button.getAttribute('data-blueprint-id');
-    const lang = button.getAttribute('data-lang');
-    const currency = button.getAttribute('data-currency');
-    const amount = parseInt(button.getAttribute('data-amount') || '500');
+  // Tentar novamente após 2 segundos
+  setTimeout(initStripe, 2000);
+  
+  const button = document.getElementById('checkout-button');
+  
+  if (!button) {
+    console.error('❌ Botão de checkout não encontrado!');
+  } else {
+    console.log('✅ Botão de checkout encontrado');
     
-    if (!stripe) {
-      showStatus('Erro: Stripe não carregado. Recarregue a página.', 'error');
-      return;
-    }
-    
-    button.disabled = true;
-    const originalText = button.textContent;
-    button.textContent = 'Processando...';
-    
-    try {
-      // Chamar API SSR do Astro
-      const response = await fetch('/api/create-checkout-session', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          blueprintId,
-          lang,
-          currency,
-          amount,
-        })
-      });
+    button.addEventListener('click', async function(e) {
+      e.preventDefault();
+      console.log('🖱️ Botão clicado!');
       
-      if (!response.ok) {
-        const error = await response.json() as { error?: string };
-        throw new Error(error.error || 'Erro ao criar sessão');
+      const target = e.currentTarget as HTMLButtonElement;
+      const blueprintId = target.getAttribute('data-blueprint-id');
+      const lang = target.getAttribute('data-lang');
+      const currency = target.getAttribute('data-currency');
+      const amount = parseInt(target.getAttribute('data-amount') || '500');
+      
+      console.log('📋 Dados do checkout:', { blueprintId, lang, currency, amount });
+      
+      if (!stripe) {
+        console.error('❌ Stripe não está carregado');
+        showStatus('Erro: Stripe não carregado. Recarregue a página.', 'error');
+        return;
       }
       
-      const session = await response.json() as { id: string; url?: string };
+      target.disabled = true;
+      const originalText = target.textContent;
+      target.textContent = '⏳ Processando...';
       
-      // Redirecionar para Stripe Checkout
-      const result = await stripe.redirectToCheckout({
-        sessionId: session.id
-      });
-      
-      if (result.error) {
-        showStatus(result.error.message, 'error');
+      try {
+        console.log('📤 Enviando requisição para criar sessão...');
+        
+        const response = await fetch('/api/create-checkout-session', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            blueprintId,
+            lang,
+            currency,
+            amount,
+          })
+        });
+        
+        console.log('📥 Resposta recebida:', response.status);
+        
+        if (!response.ok) {
+          const error = await response.json() as { error?: string; message?: string };
+          console.error('❌ Erro na resposta:', error);
+          throw new Error(error.message || error.error || 'Erro ao criar sessão');
+        }
+        
+        const session = await response.json() as { id: string; url?: string };
+        console.log('✅ Sessão criada:', session.id);
+        
+        console.log('🔄 Redirecionando para Stripe Checkout...');
+        
+        // Redirecionar para Stripe Checkout
+        const result = await stripe.redirectToCheckout({
+          sessionId: session.id
+        });
+        
+        if (result.error) {
+          console.error('❌ Erro no redirect:', result.error);
+          showStatus(result.error.message, 'error');
+        }
+      } catch (error: any) {
+        console.error('❌ Erro fatal:', error);
+        showStatus(error.message || 'Erro ao processar pagamento', 'error');
+      } finally {
+        target.disabled = false;
+        target.textContent = originalText || '';
       }
-    } catch (error: any) {
-      console.error('Erro:', error);
-      showStatus(error.message || 'Erro ao processar pagamento', 'error');
-    } finally {
-      button.disabled = false;
-      button.textContent = originalText || '';
-    }
-  });
+    });
+    
+    console.log('✅ Event listener adicionado ao botão');
+  }
   
   function showStatus(message: string, type: 'success' | 'error' | 'info') {
     const statusEl = document.getElementById('status-message');
     if (!statusEl) return;
     
-    statusEl.className = `mt-4 p-4 rounded-lg ${
+    statusEl.className = `p-4 rounded-lg mt-4 ${
       type === 'success' ? 'bg-green-900 text-green-200' :
       type === 'error' ? 'bg-red-900 text-red-200' :
       'bg-blue-900 text-blue-200'
@@ -168,10 +206,3 @@ const price = t.paywall.price;
     }
   }
 </script>
-
-<style>
-  button:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-  }
-</style>

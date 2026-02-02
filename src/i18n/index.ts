@@ -13,7 +13,7 @@ export function getPath(lang: string, path: string = '') {
 }
 
 export const languages = [
-  { code: 'pt', name: 'Português', flag: '🇧🇷' },
+  { code: 'pt', name: 'Português', flag: '🇵🇹' },
   { code: 'es', name: 'Español', flag: '🇪🇸' },
-  { code: 'en', name: 'English', flag: '🇺🇸' },
+  { code: 'en', name: 'English', flag: '🇬🇧' },
 ];
