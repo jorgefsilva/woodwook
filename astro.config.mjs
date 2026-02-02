@@ -1,19 +1,27 @@
-import { defineConfig, passthroughImageService } from 'astro/config';
+import { defineConfig } from 'astro/config';
 import mdx from '@astrojs/mdx';
 import tailwind from '@astrojs/tailwind';
 import cloudflare from '@astrojs/cloudflare';
 
 // https://astro.build/config
 export default defineConfig({
-  site: 'https://woodwook.jorgedaniel1989.workers.dev',
+  site: 'https://woodwork.tdshome.pt',
   output: 'server',
   adapter: cloudflare({
     mode: 'advanced',
+    routes: {
+      strategy: 'include',
+      include: ['/*'],
+    },
   }),
-  image: {
-    service: passthroughImageService(),
+  build: {
+    inlineStylesheets: 'always',
   },
   vite: {
+    build: {
+      minify: true,
+      assetsInlineLimit: 0,
+    },
     ssr: {
       external: ['node:buffer', 'node:path', 'node:fs', 'node:os'],
       noExternal: ['sharp'],
