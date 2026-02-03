@@ -1,11 +1,7 @@
-name = "woodwook"
-main = "dist/_worker.js"
+name = "woodwork"
 compatibility_date = "2024-09-23"
-compatibility_flags = ["nodejs_compat"]
+pages_build_output_dir = "dist"
 
 # Environment variables for local development
 [vars]
 SITE_URL = "http://localhost:4321"
-
-# Note: Assets are handled by the _worker.js itself
-# No need for [site] configuration with mode: 'advanced'
