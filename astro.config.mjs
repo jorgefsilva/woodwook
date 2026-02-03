@@ -8,28 +8,10 @@ export default defineConfig({
   site: 'https://woodwork.tdshome.pt',
   output: 'server',
   adapter: cloudflare({
-    mode: 'advanced',
-    routes: {
-      strategy: 'include',
-      include: ['/*'],
+    platformProxy: {
+      enabled: false,
     },
   }),
-  build: {
-    inlineStylesheets: 'always',
-  },
-  vite: {
-    build: {
-      minify: true,
-      assetsInlineLimit: 0,
-    },
-    ssr: {
-      external: ['node:buffer', 'node:path', 'node:fs', 'node:os'],
-      noExternal: ['sharp'],
-    },
-    optimizeDeps: {
-      exclude: ['sharp'],
-    },
-  },
   integrations: [
     mdx(),
     tailwind(),

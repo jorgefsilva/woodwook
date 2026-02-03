@@ -1,6 +1,4 @@
 import type { APIRoute } from 'astro';
-import { readFile } from 'node:fs/promises';
-import { join } from 'node:path';
 
 const BLUEPRINTS: Record<string, { 
   filename: string; 
@@ -10,17 +8,17 @@ const BLUEPRINTS: Record<string, {
   'horta-madeira-1-dia': {
     filename: 'horta-vertical-madeira-blueprint.png',
     title: 'Horta Vertical de Madeira - Blueprint Completo',
-    imagePath: 'blueprints/protected/test.png',
+    imagePath: '/blueprints/protected/test.png',
   },
   'huerto-madera-1-dia': {
     filename: 'huerto-vertical-madera-blueprint.png',
     title: 'Huerto Vertical de Madera - Blueprint Completo',
-    imagePath: 'blueprints/protected/test.png',
+    imagePath: '/blueprints/protected/test.png',
   },
   'wooden-garden-1-day': {
     filename: 'wooden-vertical-garden-blueprint.png',
     title: 'Wooden Vertical Garden - Complete Blueprint',
-    imagePath: 'blueprints/protected/test.png',
+    imagePath: '/blueprints/protected/test.png',
   },
 };
 
@@ -79,16 +77,24 @@ export const GET: APIRoute = async ({ url, request }) => {
       return new Response('Blueprint not found', { status: 404 });
     }
 
-    // Ler o arquivo de imagem
-    const publicPath = join(process.cwd(), 'public', blueprint.imagePath);
+    // Buscar a imagem do public folder
+    // Em Cloudflare Workers, usar fetch para pegar o arquivo
+    const publicUrl = new URL(blueprint.imagePath, url.origin);
     
     try {
-      const imageBuffer = await readFile(publicPath);
+      const imageResponse = await fetch(publicUrl.toString());
+      
+      if (!imageResponse.ok) {
+        console.error('❌ Blueprint file not found:', blueprint.imagePath);
+        return new Response('Blueprint file not found. Please contact support.', { status: 404 });
+      }
+
+      const imageBuffer = await imageResponse.arrayBuffer();
       
       console.log('✅ Download iniciado:', {
         blueprint: blueprintId,
         filename: blueprint.filename,
-        size: Math.round(imageBuffer.length / 1024) + 'KB',
+        size: Math.round(imageBuffer.byteLength / 1024) + 'KB',
       });
 
       return new Response(imageBuffer, {
@@ -96,14 +102,14 @@ export const GET: APIRoute = async ({ url, request }) => {
         headers: {
           'Content-Type': 'image/png',
           'Content-Disposition': `attachment; filename="${blueprint.filename}"`,
-          'Content-Length': imageBuffer.length.toString(),
+          'Content-Length': imageBuffer.byteLength.toString(),
           'Cache-Control': 'private, no-cache, no-store, must-revalidate',
           'X-Content-Type-Options': 'nosniff',
         },
       });
 
     } catch (error) {
-      console.error('❌ Error reading blueprint file:', error);
+      console.error('❌ Error fetching blueprint file:', error);
       return new Response('Blueprint file not found. Please contact support.', { status: 500 });
     }
 
