@@ -1,21 +1,5 @@
 {
   "version": 1,
   "include": ["/*"],
-  "exclude": [
-    "/_astro/*",
-    "/blueprints/*",
-    "/favicon.svg",
-    "/*.ico",
-    "/*.png",
-    "/*.jpg",
-    "/*.jpeg",
-    "/*.gif",
-    "/*.webp",
-    "/*.svg",
-    "/*.css",
-    "/*.js",
-    "/*.json",
-    "/*.txt",
-    "/*.xml"
-  ]
+  "exclude": ["/_astro/*"]
 }

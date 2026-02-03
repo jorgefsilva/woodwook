@@ -1,0 +1,4 @@
+# Servir assets estáticos diretamente
+/_astro/* /_astro/:splat 200
+/blueprints/* /blueprints/:splat 200
+/favicon.svg /favicon.svg 200

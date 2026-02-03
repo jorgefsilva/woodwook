@@ -7,12 +7,7 @@ import cloudflare from '@astrojs/cloudflare';
 export default defineConfig({
   site: 'https://woodwork.tdshome.pt',
   output: 'server',
-  adapter: cloudflare({
-    mode: 'directory',
-    platformProxy: {
-      enabled: false,
-    },
-  }),
+  adapter: cloudflare(),
   integrations: [
     mdx(),
     tailwind(),
@@ -22,11 +17,6 @@ export default defineConfig({
     locales: ['pt', 'es', 'en'],
     routing: {
       prefixDefaultLocale: true,
-    },
-  },
-  vite: {
-    build: {
-      assetsInlineLimit: 0, // Não fazer inline de assets
     },
   },
 });
