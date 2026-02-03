@@ -7,8 +7,7 @@
     "start": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "astro": "astro",
-    "deploy": "npm run build && wrangler deploy"
+    "astro": "astro"
   },
   "dependencies": {
     "@astrojs/check": "^0.9.6",
@@ -21,7 +20,6 @@
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20231218.0",
-    "typescript": "^5.7.0",
-    "wrangler": "^3.101.0"
+    "typescript": "^5.7.0"
   }
 }
